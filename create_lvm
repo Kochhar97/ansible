@@ -1,0 +1,33 @@
+- hosts: all
+  user: root
+  tasks:
+       - name: create partition              #create partition in fdisk
+         parted:
+           device: /dev/sdb                  #disk to be partitioned
+           number: "1"                       #partition no. is 1
+           flags: [ lvm ]                   
+           state: present
+           part_start: 1GiB
+
+       - name: create volume group
+         lvg:
+            vg: vg.services                  #vg name
+            pvs: /dev/sdb1                   #partition path 
+
+       - name: create logical volume
+         lvol:
+            vg: vg.services             
+            lv: dataone                      #lv name
+            size: 1G
+
+       - name: create file system
+         filesystem:
+            fstype: ext4                     #file system is ext4 type
+            dev: /dev/vg.services/dataone  
+
+       - name: mount logical volume
+         mount:
+            name: /lvdata                     #directory made to be mounted                        
+            src: /dev/vg.services/dataone
+            fstype: ext4
+            state: mounted
