@@ -1,0 +1,15 @@
+- hosts: all
+  tasks:
+  - mount:
+     path: /dvd                           # host should have the file made
+     src: /dev/cdrom                      # file having the optical drive
+     fstype: iso9660                      # yum file system type for /etc/fstab
+     opts: ro,noauto
+     state: mounted
+    
+  - yum_repository:
+     name: local
+     description: local dvd repository    
+     baseurl: "file:///dvd"               
+     enabled: yes     
+     gpgcheck: no                         # file check in disabled
