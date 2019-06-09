@@ -1,0 +1,35 @@
+- hosts: all
+  user: root                            #user defined for access by ansible
+  tasks:
+     - name: Unmount                    #first unmount the file
+       mount:
+         path: /lvdata                  #lvm mounted path
+         state: absent
+
+     - name: Remove the logical volume.
+       lvol:
+         vg: vg.services                #vgname
+         lv: dataone                    #lvname
+         state: absent
+         force: yes
+
+     - name: Remove the volume group
+       lvg:
+         vg: vg.services
+         state: absent
+         #force: yes
+         
+     - name: Remove partition number 1
+       parted:
+        device: /dev/sdb                #partition path
+        number: 1
+        state: absent
+        
+ #To remove all the partitons directly      
+     
+     - name: Remove all partitions from disk
+       parted:
+        device: /dev/sdb
+        number: '{{ item.num }}'
+        state: absent
+       loop: '{{ sdb_info.partitions }}'
